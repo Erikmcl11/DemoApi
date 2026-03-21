@@ -1,0 +1,18 @@
+## Archivos de credenciales - NUNCA subir
+appsettings.Development.json
+
+## Build
+bin/
+obj/
+
+## Visual Studio / Rider
+.vs/
+*.user
+*.suo
+
+## Logs
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
