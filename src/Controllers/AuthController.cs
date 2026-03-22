@@ -20,18 +20,30 @@ namespace DemoApi.Controllers
         }
 
         /// <summary>
-        /// Genera un token JWT para autenticarse en la API.
+        /// Genera un token JWT. Acepta JSON, form-data o urlencoded.
         /// </summary>
-        /// <param name="request">Credenciales de usuario.</param>
         /// <returns>Token JWT válido por 1 hora.</returns>
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login()
         {
-            // Usuario de prueba — en producción esto va contra la base de datos
-            if (request.Username != "admin" || request.Password != "admin123")
+            string? username, password;
+
+            if (Request.ContentType?.Contains("application/json") == true)
+            {
+                var body = await Request.ReadFromJsonAsync<LoginRequest>();
+                username = body?.Username;
+                password = body?.Password;
+            }
+            else
+            {
+                username = Request.Form["username"];
+                password = Request.Form["password"];
+            }
+
+            if (username != "admin" || password != "admin123")
                 return Unauthorized("Credenciales incorrectas.");
 
-            var token = GenerarToken(request.Username);
+            var token = GenerarToken(username!);
             return Ok(new { token });
         }
 
