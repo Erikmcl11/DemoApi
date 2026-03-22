@@ -7,7 +7,6 @@ using System.Text;
 
 namespace DemoApi.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     [AllowAnonymous]
     public class AuthController : ControllerBase
@@ -22,6 +21,7 @@ namespace DemoApi.Controllers
         /// <summary>
         /// Genera un token JWT. Acepta JSON, form-data o urlencoded.
         /// </summary>
+        /// <param name="request">Credenciales (solo para JSON).</param>
         /// <returns>Token JWT válido por 1 hora.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login()
@@ -40,10 +40,13 @@ namespace DemoApi.Controllers
                 password = Request.Form["password"];
             }
 
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                return BadRequest("username y password son requeridos.");
+
             if (username != "admin" || password != "admin123")
                 return Unauthorized("Credenciales incorrectas.");
 
-            var token = GenerarToken(username!);
+            var token = GenerarToken(username);
             return Ok(new { token });
         }
 
