@@ -19,27 +19,30 @@ namespace DemoApi.Controllers
         }
 
         /// <summary>
-        /// Genera un token JWT. Acepta JSON, form-data o urlencoded.
+        /// Genera un token JWT enviando JSON.
         /// </summary>
-        /// <param name="request">Credenciales (solo para JSON).</param>
+        /// <param name="request">Credenciales de usuario.</param>
         /// <returns>Token JWT válido por 1 hora.</returns>
         [HttpPost("login")]
-        public async Task<IActionResult> Login()
+        [Consumes("application/json")]
+        public IActionResult LoginJson([FromBody] LoginRequest request)
         {
-            string? username, password;
+            return Autenticar(request.Username, request.Password);
+        }
 
-            if (Request.ContentType?.Contains("application/json") == true)
-            {
-                var body = await Request.ReadFromJsonAsync<LoginRequest>();
-                username = body?.Username;
-                password = body?.Password;
-            }
-            else
-            {
-                username = Request.Form["username"];
-                password = Request.Form["password"];
-            }
+        /// <summary>
+        /// Genera un token JWT enviando form-data o urlencoded.
+        /// </summary>
+        [HttpPost("login")]
+        [Consumes("multipart/form-data", "application/x-www-form-urlencoded")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult LoginForm([FromForm] LoginRequest request)
+        {
+            return Autenticar(request.Username, request.Password);
+        }
 
+        private IActionResult Autenticar(string username, string password)
+        {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return BadRequest("username y password son requeridos.");
 
